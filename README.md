@@ -49,8 +49,8 @@ Because the simulator environment and the inference model environment are not co
 
 3. **Run evaluation scripts**:
    ```bash
-   ./online_eval/vla_eval.sh   # for VLA task
-   ./online_eval/vln_eval.sh   # for VLN task
+   ./vla_eval.sh   # for VLA task
+   ./vln_eval.sh   # for VLN task
    ```
       To save disk space by downloading part of the dataset, you can test on a subset of episodes by modifying:
    - `TEST_VLA_FILE` in [vla_controller.py](online_eval/vla_eval/vla_controller.py)

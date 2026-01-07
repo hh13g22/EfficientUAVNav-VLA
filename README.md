@@ -25,7 +25,7 @@ Download the pre-trained IndoorUAV-Agent model from ModelScope:
 
 | Model | Download |
 |-------|----------|
-| IndoorUAV-Agent (pi0 fine-tuned with 15k VLA episodes) | [IndoorUAV-Agent](https://modelscope.cn/models/valyentine/IndoorUAV-Agent) |
+| IndoorUAV-Agent | [checkpoint](https://modelscope.cn/models/valyentine/IndoorUAV-Agent) |
 
 This model is obtained by fine-tuning the pi0 model for 30k steps using the VLA portion (15k episodes) of the IndoorUAV dataset.
 
@@ -51,10 +51,11 @@ Because the simulator environment and the inference model environment are not co
    ```bash
    ./online_eval/vla_eval.sh   # for VLA task
    ./online_eval/vln_eval.sh   # for VLN task
-   ```bash
+   ```
       To save disk space, you can test on a subset of episodes by modifying:
    - `TEST_VLA_FILE` in `vla_controller.py`
    - `TEST_VLN_FILE` in `vln_controller.py`
+   
    and the corresponding JSON files.
 
 ## Metric Evaluation
@@ -63,3 +64,32 @@ After batch testing, you can compute quantitative metrics using:
 ```bash
 python vla_metric.py   # for VLA task
 python vln_metric.py   # for VLN task
+```
+Before running, set the `trajectories_dir` parameter in each script to the actual path where trajectories are stored.
+
+## Fine-Tuning
+### Data Preparation
+Convert your data to RLDS format using [rlds_dataset_builder](https://github.com/kpertsch/rlds_dataset_builder).
+
+### Fine-Tuning Steps
+Refer to the section **"Fine-Tuning Base Models on Your Own Data"** in the [openpi](https://github.com/Physical-Intelligence/openpi) repository.
+
+We provide our fine-tuning configuration files in the `config/` folder for reference.
+
+## Citation
+If you find this work useful, please cite:
+```bash
+@article{liu2025indooruav,
+title={IndoorUAV: Benchmarking Vision-Language UAV Navigation in Continuous Indoor Environments},
+author={Liu, Xu and Liu, Yu and Qiu, Hanshuo and Qirong, Yang and Lian, Zhouhui},
+journal={arXiv preprint arXiv:2512.19024},
+year={2025}
+}
+```
+
+## Acknowledgments
+Our code is built upon:
+- [pi0 (openpi)](https://github.com/Physical-Intelligence/openpi)
+- [Habitat-Sim](https://github.com/facebookresearch/habitat-sim/tree/main)
+
+For any questions, please contact Yu Liu at [yuliu_@hust.edu.cn](mailto:yuliu_@hust.edu.cn).

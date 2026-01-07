@@ -25,7 +25,7 @@ Download the pre-trained IndoorUAV-Agent model from ModelScope:
 
 | Model | Download |
 |-------|----------|
-| IndoorUAV-Agent (pi0 fine-tuned with 15k VLA episodes) | [modelscope.cn/models/valyentine/IndoorUAV-Agent](https://modelscope.cn/models/valyentine/IndoorUAV-Agent) |
+| IndoorUAV-Agent (pi0 fine-tuned with 15k VLA episodes) | [IndoorUAV-Agent](https://modelscope.cn/models/valyentine/IndoorUAV-Agent) |
 
 This model is obtained by fine-tuning the pi0 model for 30k steps using the VLA portion (15k episodes) of the IndoorUAV dataset.
 

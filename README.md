@@ -9,6 +9,7 @@
 - [x] Online evaluation scripts for VLA and VLN tasks
 - [x] Metric evaluation scripts
 - [x] Fine-tuning configuration and guidelines
+- [Jan 2026] Meta infomation of the training data 
 
 ## Contents
 - [Model Download](#model-download)

@@ -9,7 +9,7 @@
 - [x] Online evaluation scripts for VLA and VLN tasks
 - [x] Metric evaluation scripts
 - [x] Fine-tuning configuration and guidelines
-- [Jan 2026] Meta infomation of the training data 
+- [Jan 2026] Meta infomation of the training data
 
 ## Contents
 - [Model Download](#model-download)
@@ -28,7 +28,7 @@ Download the pre-trained IndoorUAV-Agent model from ModelScope:
 |-------|----------|
 | IndoorUAV-Agent | [checkpoint](https://modelscope.cn/models/valyentine/IndoorUAV-Agent) |
 
-This model is obtained by fine-tuning the pi0 model for 30k steps using the VLA part (15k episodes) of the IndoorUAV dataset.
+This model is obtained by fine-tuning the pi0 model for 30k steps using the VLA part (15k episodes) of the IndoorUAV dataset. The meta information of the training data can be found in the training_data.zip.
 
 ## Online Evaluation
 Because the simulator environment and the inference model environment are not compatible, you need to set up two separate environments.

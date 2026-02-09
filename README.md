@@ -41,7 +41,7 @@ Because the simulator environment and the inference model environment are not co
    Follow the instructions in [habitat-sim](https://github.com/facebookresearch/habitat-sim/tree/main) to install the Habitat simulator.
 
 2. **Inference Model Environment**  
-   Set up the environment following [openpi](https://github.com/Physical-Intelligence/openpi) and replace the config files mentioned in this [part](https://github.com/Physical-Intelligence/openpi?tab=readme-ov-file#fine-tuning-base-models-on-your-own-data) with corresponding files provided in [config/pi0](https://github.com/valyentinee/IndoorUAV-Agent/tree/main/config/pi0).
+   Set up the environment following [openpi repo](https://github.com/Physical-Intelligence/openpi/tree/05-31-implement_training_on_droid) (the 05-31-implement_training_on_droid branch) and replace the config files mentioned in this [part](https://github.com/Physical-Intelligence/openpi/tree/05-31-implement_training_on_droid?tab=readme-ov-file#fine-tuning-base-models-on-your-own-data) with corresponding files provided in [config/pi0](https://github.com/valyentinee/IndoorUAV-Agent/tree/main/config/pi0).
 
 ### Running Evaluation
 1. **Download the dataset** from [ModelScope](https://modelscope.cn/datasets/valyentine/Indoor_UAV).
@@ -77,7 +77,7 @@ Before running, set the `trajectories_dir` parameter in each script to the actua
 Convert your data to RLDS format using [rlds_dataset_builder](https://github.com/kpertsch/rlds_dataset_builder).
 
 ### Fine-Tuning Steps
-Refer to the section **"Fine-Tuning Base Models on Your Own Data"** in the [openpi](https://github.com/Physical-Intelligence/openpi) repository.
+Refer to the section **"Fine-Tuning Base Models on Your Own Data"** in the [openpi](https://github.com/Physical-Intelligence/openpi/tree/05-31-implement_training_on_droid?tab=readme-ov-file#fine-tuning-base-models-on-your-own-dat) repository.
 
 We provide our fine-tuning configuration files in the `config/` folder for reference.
 

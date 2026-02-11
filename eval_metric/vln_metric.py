@@ -10,6 +10,12 @@ THRESHOLD_SUCCESS_DIST = 2  # 成功距离阈值 (米)
 THRESHOLD_SUCCESS_ANGLE = math.pi*2   # 成功角度阈值 (弧度)
 ALPHA = 10  # nDTW参数
 
+# Config
+DATASET_ROOT = "/home/testunot/datasets/habitat/IndoorUAV-VLA"
+SHARED_FOLDER = "/home/testunot/IndoorUAV-Agent/online_eval/vla_eval/shared_folder"
+
+TRAJECTORIES_DIR = os.path.join(SHARED_FOLDER, "trajectories")
+OUTPUT_FILE = os.path.join(SHARED_FOLDER, "evaluation_metrics.json")
 
 def angle_difference(a, b):
     """计算两个角度之间的最小差异（考虑圆周性）"""
@@ -56,21 +62,30 @@ def process_episode(json_path):
         if data.get("termination_reason") != "no_more_instructions":
             return None
 
-        # 获取episode_key和预测轨迹
+        # episode_key example: "gibson_1/Adrian/0"
+        # dirname example: "gibson_1/Adrian"
         episode_key = data["episode_key"].lstrip('/')
         pred_trajectory = data["trajectory"]
 
+        if not pred_trajectory:
+            print(f"Warning: Empty trajectory in {json_path}")
+            return None
+
         # 构建posture文件路径
-        base_path = "/data1/liuy/vln_pi0/without_screenshot"
+        base_path = os.path.join(DATASET_ROOT, "without_screenshot")
         posture_path = os.path.join(base_path, os.path.dirname(episode_key), "posture.json")
+
+        
 
         # 加载目标轨迹
         with open(posture_path, 'r') as f:
             gt_full_seq = json.load(f)
 
-        # 转换角度为弧度并提取三维坐标
+        # Prepare GT Data (Convert Yaw to Radians)
         gt_seq = []
         gt_positions = []
+
+        # Parse the GT list. Format is [x, y, z, yaw_degrees]
         for point in gt_full_seq:
             x, y, z, yaw_deg = point
             yaw_rad = yaw_deg * math.pi / 180.0
@@ -127,8 +142,8 @@ def process_episode(json_path):
 
 def main():
     # 配置路径
-    trajectories_dir = "/data1/liuy/vln_pi0/shared_folder/trajectories"
-    output_file = "evaluation_results_unseen.json"
+    trajectories_dir = TRAJECTORIES_DIR
+    output_file = OUTPUT_FILE
 
     # 收集所有结果
     all_results = []

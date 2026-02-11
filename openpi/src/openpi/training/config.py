@@ -588,7 +588,7 @@ TrainConfig(
         name="pi0_uav_low_mem_finetune",
         model=pi0.Pi0Config(paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora",action_horizon=10,max_token_len=240),
         data=LeRobotLiberoDataConfig(
-            repo_id="/data1/liuy/pi0_15k",
+            repo_id="/home/testunot/IndoorUAV-Agent/training_data",
             base_config=DataConfig(prompt_from_task=True),
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi0_base/params"),
@@ -598,13 +598,13 @@ TrainConfig(
         ).get_freeze_filter(),
         ema_decay=None,
         fsdp_devices=1,
-        checkpoint_base_dir="/data1/liuy/pi0_ck"
+        checkpoint_base_dir="/home/testunot/IndoorUAV-Agent/checkpoint/29999"
     ),
 TrainConfig(
         name="pi0_uav_low_mem_finetune_vln",
         model=pi0.Pi0Config(paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora",action_horizon=10),
         data=LeRobotLiberoDataConfig(
-            repo_id="/data1/liuy/vln_dataset/indoor_1",
+            repo_id="/home/testunot/IndoorUAV-Agent/training_data",
             base_config=DataConfig(prompt_from_task=True),
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi0_base/params"),
@@ -614,13 +614,13 @@ TrainConfig(
         ).get_freeze_filter(),
         ema_decay=None,
         fsdp_devices=2,
-        checkpoint_base_dir="/data1/liuy/pi0_ck"
+        checkpoint_base_dir="/home/testunot/IndoorUAV-Agent/checkpoint/29999"
     ),
     TrainConfig(
         name="pi0_fast_uav_low_mem_finetune",
         model=pi0_fast.Pi0FASTConfig(paligemma_variant="gemma_2b_lora",action_horizon=10,action_dim=4,max_token_len=240),
         data=LeRobotLiberoDataConfig(
-            repo_id="/data1/liuy/pi0_15k",
+            repo_id="/home/testunot/IndoorUAV-Agent/training_data",
             base_config=DataConfig(prompt_from_task=True),
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi0_fast_base/params"),
@@ -630,7 +630,7 @@ TrainConfig(
         ).get_freeze_filter(),
         ema_decay=None,
         fsdp_devices=2,
-        checkpoint_base_dir="/data1/liuy/pi0_fast_ck"
+        checkpoint_base_dir="/home/testunot/IndoorUAV-Agent/checkpoint/29999"
     ),
     TrainConfig(
         name="pi0_fast_libero",

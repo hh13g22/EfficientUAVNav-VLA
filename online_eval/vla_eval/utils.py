@@ -5,28 +5,31 @@ import glob
 import numpy as np
 from magnum import Vector3, Quaternion, Rad
 from scipy.spatial.transform import Rotation
-
+SCENE_ROOT = "/home/testunot/datasets/habitat/IndoorUAV-VLA/scene_datasets"
 
 def get_glb_path(group, scene):
-    """根据group和scene获取glb路径"""
-    # 处理 group 中的数字部分 (如 hm3d_14)
+    """Get glb path based on group and scene."""
+    # Handle the number part in the group (e.g., hm3d_14)
     group_parts = group.split('_')
     dataset_type = group_parts[0]
 
     if dataset_type == 'mp3d':
-        return f"/data1/liuy/scene_datasets/mp3d/{scene}/{scene}.glb"
+        return os.path.join(SCENE_ROOT, "mp3d", scene, f"{scene}.glb")
+        
     elif dataset_type == 'gibson':
-        return f"/data1/liuy/scene_datasets/gibson/{scene}.glb"
+        return os.path.join(SCENE_ROOT, "gibson", f"{scene}.glb")
+        
     elif dataset_type == 'hm3d':
-        base_path = f"/data1/liuy/scene_datasets/hm3d"
+        base_path = os.path.join(SCENE_ROOT, "hm3d")
 
         if not os.path.exists(base_path):
-            raise FileNotFoundError(f"HM3D数据集路径不存在: {base_path}")
+            raise FileNotFoundError(f"HM3D dataset path does not exist: {base_path}")
 
+        # Search for folders matching the scene name
         matching_folders = glob.glob(os.path.join(base_path, f"*{scene}*"))
 
         if not matching_folders:
-            raise FileNotFoundError(f"在 {base_path} 中找不到包含 '{scene}' 的文件夹")
+            raise FileNotFoundError(f"Could not find folder containing '{scene}' in {base_path}")
 
         target_folder = None
         for folder in matching_folders:
@@ -36,22 +39,25 @@ def get_glb_path(group, scene):
                 break
 
         if not target_folder:
-            raise FileNotFoundError(f"在 {base_path} 中找不到包含 '{scene}' 的文件夹")
+            raise FileNotFoundError(f"Could not find folder containing '{scene}' in {base_path}")
 
         glb_file = os.path.join(target_folder, f"{scene}.basis.glb")
 
+        # Fallback if specific basis file not found
         if not os.path.exists(glb_file):
             possible_files = glob.glob(os.path.join(target_folder, f"*{scene}*.glb"))
             if possible_files:
                 glb_file = possible_files[0]
             else:
-                raise FileNotFoundError(f"在 {target_folder} 中找不到 {scene}.basis.glb 或类似文件")
+                raise FileNotFoundError(f"Could not find {scene}.basis.glb or similar file in {target_folder}")
 
         return glb_file
+        
     elif dataset_type == 'replica':
-        return f"/data1/liuy/scene_datasets/replica/{scene}/habitat/mesh_preseg_semantic.ply"
+        return os.path.join(SCENE_ROOT, "replica", scene, "habitat", "mesh_preseg_semantic.ply")
+        
     else:
-        raise ValueError(f"未知的group类型: {group}")
+        raise ValueError(f"Unknown group type: {group}")
 
 
 def normalize_angle(angle):

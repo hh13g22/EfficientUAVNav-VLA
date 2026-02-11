@@ -12,6 +12,11 @@ THRESHOLD_SUCCESS_DIST = 0.5
 THRESHOLD_SUCCESS_ANGLE = math.pi / 4
 ALPHA = 1  # NDTW参数
 
+DATASET_ROOT =  "/home/testunot/datasets\habitat\IndoorUAV-VLA"
+SHARED_FOLDER = "/home/testunot/IndoorUAV-Agent/online_eval/vla_eval/shared_folder"
+TRAJECTORIES_DIR = os.path.join(SHARED_FOLDER, "trajectories")
+OUTPUT_FILE = os.path.join(SHARED_FOLDER, "evaluation_openvla_results.json")
+
 
 def angle_difference(a, b):
     """计算两个角度之间的最小差异（考虑圆周性）"""
@@ -71,13 +76,13 @@ def process_episode(trajectory_file):
         vla_file = parts[3]
 
         # 构建vla_ins文件路径
-        vla_ins_path = f"/data1/liuy/test_pi0/vla_ins/{scene_name}/{env_name}/{traj_folder}/{vla_file}"
+        vla_ins_path = os.path.join(DATASET_ROOT, "vla_ins", scene_name, env_name, traj_folder, vla_file)
         with open(vla_ins_path, 'r', encoding='gbk') as f:
             vla_data = json.load(f)
         source = vla_data["source"]
 
         # 构建posture文件路径
-        posture_path = f"/data1/liuy/test_pi0/without_screenshot/{scene_name}/{env_name}/{traj_folder}/posture.json"
+        posture_path = os.path.join(DATASET_ROOT, "without_screenshot", scene_name, env_name, traj_folder, "posture.json")
         with open(posture_path, 'r') as f:
             posture_data = json.load(f)
 
@@ -174,11 +179,10 @@ def process_episode(trajectory_file):
         print(f"Error processing {trajectory_file}: {str(e)}")
         return None
 
-
 def main():
     # 配置路径
-    trajectories_dir = "/data1/liuy/test_pi0/shared_folder/trajectories"
-    output_file = "evaluation_results_openvla.json"
+    trajectories_dir = TRAJECTORIES_DIR
+    output_file = OUTPUT_FILE
 
     # 收集所有结果
     all_results = []

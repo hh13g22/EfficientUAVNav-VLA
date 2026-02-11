@@ -4,8 +4,12 @@ import time
 from test_sim import setup_simulator, get_img
 import cv2
 
-# 配置
-SHARED_FOLDER = "shared_folder"
+os.environ["EGL_DEVICE_ID"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["__GLVND_EXPOSE_NATIVE_CONTEXTS"] = "1"
+
+# Config
+SHARED_FOLDER = "/home/testunot/IndoorUAV-Agent/online_eval/vla_eval/shared_folder"
 SIM_INPUT_DIR = os.path.join(SHARED_FOLDER, "sim_input")
 SIM_OUTPUT_DIR = os.path.join(SHARED_FOLDER, "sim_output")
 IMAGE_STORAGE = os.path.join(SHARED_FOLDER, "images")
@@ -22,57 +26,59 @@ class SimulatorService:
 
     def process_file(self, file_path):
         try:
-            # 检查终止信号
+            # 1. Check for termination signal
             if "terminate.json" in file_path:
-                print("收到终止信号，关闭模拟器")
+                print("Received termination signal, shut down emulator")
                 if self.sim:
                     self.sim.close()
                     self.sim = None
-                # 移除终止信号文件
                 os.remove(file_path)
                 return True
-            time.sleep(0.16)
+            
+            # Potential Problem if it cant load f or f does not exist.
+            time.sleep(0.2)
             with open(file_path, 'r') as f:
                 data = json.load(f)
-
+            
+            # 3. Parse Data
             episode_key = data.get("episode_key", "")
             coords = data.get("coordinates", [])
             glb_path = data.get("glb_path", None)
             is_new_scene = data.get("is_new_scene", False)
-
-            # 处理场景设置
+            print(f"Processing episode: {episode_key}")
+            # 4. Initialize Simulator if needed
             if is_new_scene and glb_path:
                 if self.sim:
                     self.sim.close()
-                print(f"初始化模拟器: {glb_path}")
+                print(f"Initialize the scene: {glb_path}")
                 self.sim = setup_simulator(glb_path)
                 self.agent = self.sim.initialize_agent(0)
                 self.current_glb_path = glb_path
             elif not self.sim:
-                print("错误: 模拟器未初始化")
+                print("Error: Scene not initialized")
                 return False
 
-            # 渲染图像
+            # 5. Render Image
             timestamp = time.time()
             safe_episode_key = episode_key.replace('/', '_').replace(':', '_').replace(' ', '_')
             image_filename = f"image_{safe_episode_key}_{timestamp}.png"
             image_path = os.path.join(IMAGE_STORAGE, image_filename)
 
-            # 创建临时文件存储坐标
+            # Create temp file for test_sim (legacy requirement)
             temp_coords_file = f"temp_coords_{timestamp}.json"
             with open(temp_coords_file, 'w') as f:
                 json.dump({"action": coords}, f)
 
-            # 获取图像
+            # Get image from Habitat
             frame = get_img(temp_coords_file, self.sim, self.agent)
 
-            # 保存图像
+            # Save Image to disk
             cv2.imwrite(image_path, frame)
 
-            # 删除临时文件
+            # Clean up temp file
             os.remove(temp_coords_file)
 
-            # 保存输出
+            # Write Output for Controller
             output_file = os.path.join(SIM_OUTPUT_DIR, f"sim_output_{timestamp}.json")
             with open(output_file, 'w') as f:
                 json.dump({
@@ -81,25 +87,25 @@ class SimulatorService:
                     "image_path": image_path
                 }, f)
 
-            print(f"已生成图像: {image_path}")
+            print(f"Image generated: {image_path}")
             return True
 
         except Exception as e:
-            print(f"处理文件 {file_path} 出错: {str(e)}")
+            print(f"Unable to process: {file_path} Error: {str(e)}")
             return False
         finally:
-            # 清理输入文件 (不包括终止信号文件)
+            # Always clean up the input file so we don't process it twice
             if os.path.exists(file_path) and "terminate.json" not in file_path:
                 os.remove(file_path)
 
 
 def main():
-    print("模拟器服务启动...")
+    print("Simulation service starts...")
     simulator = SimulatorService()
 
     try:
         while True:
-            # 检查输入目录
+            # Scan directory for new JSON files
             processed = False
             for file_name in os.listdir(SIM_INPUT_DIR):
                 if not file_name.endswith('.json'):
@@ -109,12 +115,12 @@ def main():
                 if simulator.process_file(file_path):
                     processed = True
 
-            # 如果没有处理任何文件，等待一会儿
+            # Sleep to save CPU if no work was done
             if not processed:
                 time.sleep(0.1)
 
     except KeyboardInterrupt:
-        print("模拟器服务停止")
+        print("Simulator Stopped")
 
     finally:
         if simulator.sim:

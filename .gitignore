@@ -1,0 +1,8 @@
+NVIDIA-Linux-x86_64-*/
+*.so*
+*.run
+*.bak
+*.json
+miniconda3/
+data/
+checkpoint/

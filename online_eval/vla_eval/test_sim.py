@@ -9,7 +9,7 @@ from utils import load_position  # 从utils导入
 
 
 def setup_simulator(glb_path):
-    """设置模拟器环境"""
+    """Set up the simulator environment"""
     sim_config = SimulatorConfiguration()
     sim_config.scene_id = glb_path
     sim_config.enable_physics = False
@@ -31,17 +31,19 @@ def setup_simulator(glb_path):
 
 
 def get_img(coords_file, sim, agent):
-    """根据坐标文件获取图像"""
+    """Obtain the image from the coordinate file."""
+
+    # Flight
     transform = load_position(file_path=coords_file)
 
     new_state = habitat_sim.AgentState()
     new_state.position = transform["position"]
     new_state.rotation = transform["rotation"]
 
-    agent.set_state(new_state)
+    agent.set_state(new_state) # Place agent into new coordinates
     obs = sim.get_sensor_observations()
 
-    # 图像处理
+    # image processing
     frame = obs["rgb"]
     frame = np.flipud(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
     frame = frame[:, ::-1, :]

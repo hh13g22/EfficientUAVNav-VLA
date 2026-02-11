@@ -5,6 +5,7 @@
 Tested Compatibilities:
 - [x] True Linux
 - [ ] WSL2 (Habitat incompatible, missing lib_nvidiaEGL)
+- [ ] Windows
 
 How to install:
 - Pull Repository

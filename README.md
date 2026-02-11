@@ -2,6 +2,10 @@
 # EfficientUAVNav-VLA 
 ## Final Individual Project for MSc Applied Machine Learning ICL
 
+Tested Compatibilities:
+- [x] True Linux
+- [ ] WSL2 (Habitat incompatible, missing lib_nvidiaEGL)
+
 How to install:
 - Pull Repository
 - Install OpenPi Environments

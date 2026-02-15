@@ -1,5 +1,5 @@
 
-# EfficientUAVNav-VLA 
+# CheapDrone-VLA
 ## Final Individual Project for MSc Applied Machine Learning ICL
 
 ## Tested Compatibilities:

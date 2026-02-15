@@ -19,7 +19,7 @@
 ## Acknowledgments:
 Models:     [IndoorUAV-Agent](https://github.com/valyentinee/IndoorUAV-Agent/tree/main)
 
-Benchmark:  [IndoorUAV-Agent](https://www.modelscope.cn/datasets/valyentine/Indoor_UAV)
+Benchmark:  [IndoorUAV-Dataset](https://www.modelscope.cn/datasets/valyentine/Indoor_UAV)
 
 openpi:     [pi0 (openpi)](https://github.com/Physical-Intelligence/openpi)
   

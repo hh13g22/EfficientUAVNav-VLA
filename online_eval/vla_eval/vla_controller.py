@@ -131,6 +131,10 @@ class EpisodeController:
         # Now update instruction file with the actual image path
         self.update_instruction_file()
         print(f"Setup complete with start image: {self.start_image_path}")
+        
+        # send to model to trigger first inference
+        self.send_to_model(self.start_image_path, self.start_coords)
+        print("Initial image sent to model, waiting for first action...")
 
     def update_instruction_file(self):
         """Helper to update the instruction file shared with Model Runner"""

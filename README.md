@@ -13,8 +13,13 @@
 - Replace paths in config/pi0/config.py
 - Replace OpenPi configs with updated config/pi0/config.py
 - Replace paths in all files of: online_eval/vla_eval 
-- Install habitat-sim in an conda environment.
+- Install habitat-sim with bullet physics in an conda environment
 - Inference using vla_eval.sh
+
+## Common Errors:
+- Habitat-sim built in headless mode
+- File paths incorrectly set
+- Insufficient VRAM
 
 ## Acknowledgments:
 Models:     [IndoorUAV-Agent](https://github.com/valyentinee/IndoorUAV-Agent/tree/main)

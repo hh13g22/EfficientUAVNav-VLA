@@ -4,6 +4,9 @@ import time
 import numpy as np
 from PIL import Image
 
+os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.92"  # Use 65% of GPU
+os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"] = "platform"
 
 # Initialize model
 def init_model():

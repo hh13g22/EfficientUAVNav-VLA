@@ -2,6 +2,7 @@ import os
 import json
 import time
 import shutil
+import tempfile
 from utils import get_glb_path, is_success, load_posture
 
 # 配置参数
@@ -32,6 +33,23 @@ for dir_path in [CONTROLLER_INPUT, SIM_INPUT_DIR, SIM_OUTPUT_DIR,
     os.makedirs(dir_path, exist_ok=True)
 
 
+# Original file writing and reading implementation was an approximate wait and then read
+# Atomic Writing is a race free assertion that signifies that the target file does not exist yet
+def atomic_write_json(path, data):
+    dir_name = os.path.dirname(path) or "."
+    with tempfile.NamedTemporaryFile('w', dir=dir_name, delete=False, suffix='.tmp') as tmp:
+        json.dump(data, tmp)
+        tmp_path = tmp.name
+    os.replace(tmp_path, path)
+
+# Tries to read the a json file to test and report if the file is empty or partially written
+def safe_read_json(path):
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
 class EpisodeController:
     def __init__(self, episode_key):
         self.episode_key = episode_key
@@ -43,6 +61,7 @@ class EpisodeController:
         self.glb_path = None
         self.instruction = None
         self.start_image_path = None
+        self.terminated = False # Stops double episode termination
 
         # 解析路径
         path_parts = episode_key.rsplit('/', 1)[0]
@@ -111,6 +130,8 @@ class EpisodeController:
                     continue
                 
                 file_path = os.path.join(SIM_OUTPUT_DIR, file_name)
+
+                """                 
                 try:
                     time.sleep(0.1)  # Small delay to ensure file is written
                     with open(file_path, 'r') as f:
@@ -124,8 +145,25 @@ class EpisodeController:
                 except Exception as e:
                     print(f"Error reading sim output: {e}")
                     time.sleep(0.1)
+                    continue """
+
+                # Implement smart waiting conditions and double wait time
+                try:
+                    data = safe_read_json(file_path)
+                    if data is None:
+                        time.sleep(0.2)
+                        continue
+
+                    if data.get("episode_key") == self.episode_key:
+                        self.start_image_path = data["image_path"]
+                        print(f"Received initial image: {self.start_image_path}")
+                        os.remove(file_path)
+                        break
+                except Exception as e:
+                    print(f"Error reading sim output: {e}")
+                    time.sleep(0.1)
                     continue
-            
+
             time.sleep(0.1)
     
         # Now update instruction file with the actual image path
@@ -136,42 +174,76 @@ class EpisodeController:
         self.send_to_model(self.start_image_path, self.start_coords)
         print("Initial image sent to model, waiting for first action...")
 
+    """     
     def update_instruction_file(self):
-        """Helper to update the instruction file shared with Model Runner"""
+    # Helper to update the instruction file shared with Model Runner
+    instruction_file = os.path.join(INSTRUCTIONS_DIR, "current_instruction.json")
+    with open(instruction_file, 'w') as f:
+        json.dump({
+            "episode_key": self.episode_key,
+            "instruction": self.instruction,
+            "end_coords": self.end_coords,
+            "glb_path": self.glb_path,
+            "start_coords": self.start_coords,
+            "start_image_path": self.start_image_path # Add starting image path
+        }, f) """
+       
+    # Updated instruction write function that atomically writes files
+    def update_instruction_file(self):
         instruction_file = os.path.join(INSTRUCTIONS_DIR, "current_instruction.json")
-        with open(instruction_file, 'w') as f:
-            json.dump({
-                "episode_key": self.episode_key,
-                "instruction": self.instruction,
-                "end_coords": self.end_coords,
-                "glb_path": self.glb_path,
-                "start_coords": self.start_coords,
-                "start_image_path": self.start_image_path # Add starting image path
-            }, f)
+        atomic_write_json(instruction_file, {
+            "episode_key": self.episode_key,
+            "instruction": self.instruction,
+            "end_coords": self.end_coords,
+            "glb_path": self.glb_path,
+            "start_coords": self.start_coords,
+            "start_image_path": self.start_image_path,
+        })  
 
     def send_to_simulator(self, coords, is_new_scene=False):
         """Send coordinates to the simulator"""
         timestamp = time.time()
         sim_input_file = os.path.join(SIM_INPUT_DIR, f"sim_input_{timestamp}.json")
+
+        """         
         with open(sim_input_file, 'w') as f:
             json.dump({
                 "episode_key": self.episode_key,
                 "coordinates": coords,
                 "glb_path": self.glb_path if is_new_scene else None,
                 "is_new_scene": is_new_scene
-            }, f)
+            }, f) """
+
+        # Instead Atommically write
+        atomic_write_json(sim_input_file, {
+            "episode_key": self.episode_key,
+            "coordinates": coords,
+            "glb_path": self.glb_path if is_new_scene else None,
+            "is_new_scene": is_new_scene,
+        })
+        
         print(f"Sent coordinates to simulator: {coords}")
 
     def send_to_model(self, image_path, coords):
         """Send image and coordinates to model"""
         timestamp = time.time()
         model_input_file = os.path.join(MODEL_INPUT_DIR, f"model_input_{timestamp}.json")
+
+
+        """         
         with open(model_input_file, 'w') as f:
             json.dump({
                 "episode_key": self.episode_key,
                 "image_path": image_path,
                 "coordinates": coords
-            }, f)
+            }, f) """
+        # Atomic Write to avoid race conditions and JSONDecodeError
+        atomic_write_json(model_input_file, {
+            "episode_key": self.episode_key,
+            "image_path": image_path,
+            "coordinates": coords,
+        })
+
         print(f"Sent image to model: {os.path.basename(image_path)}")
 
     def process_sim_output(self, sim_data):
@@ -223,27 +295,47 @@ class EpisodeController:
 
     def terminate_episode(self):
         """Terminate the current episode and save the results."""
+        if self.terminated: # Check if already terminated
+            return
+        self.terminated = True
         # Save trajectory
         safe_episode_key = self.episode_key.replace('/', '_').replace(':', '_').replace(' ', '_')
         trajectory_file = os.path.join(TRAJECTORY_OUTPUT, f"{safe_episode_key}.json")
 
+        """         
         with open(trajectory_file, 'w') as f:
             json.dump({
                 "episode_key": self.episode_key,
                 "success": self.success, # yes if reached goal no if early termination
                 "steps": self.step_count, 
                 "trajectory": self.trajectory
-            }, f, indent=2)
+            }, f, indent=2) """
+
+        # Replace with atomic writes
+        atomic_write_json(trajectory_file, {
+            "episode_key": self.episode_key,
+            "success": self.success,
+            "steps": self.step_count,
+            "trajectory": self.trajectory,
+        })
 
         print(f"Episode completed! Success: {self.success}, Step Count: {self.step_count}")
 
         # Send termination signal, received by model and simulator
         terminate_file = os.path.join(SIM_INPUT_DIR, "terminate.json")
+
+        """         
         with open(terminate_file, 'w') as f:
             json.dump({
                 "episode_key": self.episode_key,
                 "action": "terminate"
-            }, f)
+            }, f) """
+
+        # Like wise replace with atomic write
+        atomic_write_json(terminate_file, {
+            "episode_key": self.episode_key,
+            "action": "terminate",
+        })
 
 
 class FileMover:
@@ -285,8 +377,35 @@ class FileMover:
             except Exception as e:
                 print(f"Failed to move file: {str(e)}")
 
+def clear_shared_folder():
+
+    # Wipe all shared folder subdirs at the start of each run
+
+    dirs_to_clear = [
+
+        CONTROLLER_INPUT, SIM_INPUT_DIR, SIM_OUTPUT_DIR,
+
+        MODEL_INPUT_DIR, MODEL_OUTPUT_DIR,
+
+        INSTRUCTIONS_DIR, IMAGE_STORAGE
+
+    ]
+
+    for dir_path in dirs_to_clear:
+
+        for item in os.listdir(dir_path):
+
+            item_path = os.path.join(dir_path, item)
+
+            if os.path.isfile(item_path):
+
+                os.remove(item_path)
+
+    print("Sharedfolder cleared")
+ 
 
 def main():
+    clear_shared_folder()
     # Load test configuration
     with open(TEST_VLA_FILE, 'r') as f:
         test_vla = json.load(f)
@@ -319,7 +438,13 @@ def main():
             # Move Files
             file_mover.move_sim_output_to_model_input()
             file_mover.move_model_output_to_sim_input()
-            print(f"Controller input files: {os.listdir(CONTROLLER_INPUT)}")
+            #print(f"Controller input files: {os.listdir(CONTROLLER_INPUT)}") # The problem with this is that it will print [] if there exists nothing in the dir
+
+            # improved implementation
+            files = [f for f in os.listdir(CONTROLLER_INPUT) if f.endswith('.json')]
+            if files: # only print if there exists 
+                print(f"Controller input files: {files}")
+
             # Handle controller input
             processed = False # Initialise false as no data has been processed
             for file_name in os.listdir(CONTROLLER_INPUT):
@@ -353,14 +478,14 @@ def main():
 
             # Check the termination condition
             if controller.success or controller.step_count >= MAX_INFERENCE_STEPS:
-                controller.terminate_episode()
+                controller.terminate_episode() # Terminate 1
                 time.sleep(0.2)
                 break # Break out of while loop 
 
             # Timeout
             if time.time() - start_time > 240:
                 print("Episode Time Limit Exceeded")
-                controller.terminate_episode()
+                controller.terminate_episode() # Terminate 2
                 time.sleep(0.2)
                 break
 

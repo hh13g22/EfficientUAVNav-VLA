@@ -22,7 +22,7 @@
 - Insufficient VRAM
 
 ## Results
-| Model | Peak Mem (GB) | Mean Mem (GB) | Mean Inference Speed (ms) | SR (%) | NDTW |
+| Model | Peak Mem (GB) | Mean Mem (GB) | Mean Inference Speed (ms) | SR (%) | NDTW (%)|
 |-------|:-------------:|:-------------:|:-------------------------:|:------:|:----:|
 |       |               |               |                           |        |      |
 |       |               |               |                           |        |      |

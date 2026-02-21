@@ -29,6 +29,10 @@
 ## Acknowledgments:
 Models:     [IndoorUAV-Agent](https://github.com/valyentinee/IndoorUAV-Agent/tree/main)
 
+| Model | SR Full (%) | NDTW Full (%) | SR Easy (%) | NDTW Easy (%) | SR Med (%) | NDTW Med (%) | SR Hard (%) | NDTW Hard (%) |
+|-------|:-----------:|:-------------:|:-----------:|:-------------:|:----------:|:------------:|:-----------:|:-------------:|
+| π0* | 27.16 | 9.44 | 46.58 | 14.52 | 21.64 | 7.64 | 7.55 | 4.27 |
+
 Benchmark:  [IndoorUAV-Dataset](https://www.modelscope.cn/datasets/valyentine/Indoor_UAV)
 
 openpi:     [pi0 (openpi)](https://github.com/Physical-Intelligence/openpi)

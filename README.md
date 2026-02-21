@@ -1,11 +1,11 @@
 
 # CheapDrone-VLA
-## Final Individual Project for MSc Applied Machine Learning ICL
+## Final Individual Project for ICL Applied Machine Learning
 
 ## Tested Compatibilities:
-- [x] True Linux
-- [ ] WSL2 (Habitat incompatible, missing lib_nvidiaEGL)
-- [ ] Windows
+- [x] Ubuntu 22.02+
+- [ ] WSL2 (missing nvidia EGL dependencies for habitat-sim)
+- [ ] Windows (habitat-sim does not support)
 
 ## How to install:
 - Pull Repository
@@ -20,6 +20,13 @@
 - Habitat-sim built in headless mode
 - File paths incorrectly set
 - Insufficient VRAM
+
+## Results
+| Model | Peak Mem (GB) | Mean Mem (GB) | Mean Inference Speed (ms) | SR (%) | NDTW |
+|-------|:-------------:|:-------------:|:-------------------------:|:------:|:----:|
+|       |               |               |                           |        |      |
+|       |               |               |                           |        |      |
+|       |               |               |                           |        |      |
 
 ## Acknowledgments:
 Models:     [IndoorUAV-Agent](https://github.com/valyentinee/IndoorUAV-Agent/tree/main)

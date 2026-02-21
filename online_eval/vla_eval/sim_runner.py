@@ -3,6 +3,7 @@ import json
 import time
 from test_sim import setup_simulator, get_img
 import cv2
+import tempfile
 
 os.environ["EGL_DEVICE_ID"] = "0"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -17,6 +18,22 @@ os.makedirs(SIM_INPUT_DIR, exist_ok=True)
 os.makedirs(SIM_OUTPUT_DIR, exist_ok=True)
 os.makedirs(IMAGE_STORAGE, exist_ok=True)
 
+# Original file writing and reading implementation was an approximate wait and then read
+# Atomic Writing is a race free assertion that signifies that the target file does not exist yet
+def atomic_write_json(path, data):
+    dir_name = os.path.dirname(path) or "."
+    with tempfile.NamedTemporaryFile('w', dir=dir_name, delete=False, suffix='.tmp') as tmp:
+        json.dump(data, tmp)
+        tmp_path = tmp.name
+    os.replace(tmp_path, path)
+
+# Tries to read the a json file to test and report if the file is empty or partially written
+def safe_read_json(path):
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
 
 class SimulatorService:
     def __init__(self):
@@ -36,9 +53,14 @@ class SimulatorService:
                 return True
             
             # Potential Problem if it cant load f or f does not exist.
+            """             
             time.sleep(0.2)
             with open(file_path, 'r') as f:
-                data = json.load(f)
+                data = json.load(f) """ # And it was a problem. caused JSONDecoderError Crash
+            
+            data = safe_read_json(file_path)
+            if data is None:
+                return False
             
             # 3. Parse Data
             episode_key = data.get("episode_key", "")
@@ -78,14 +100,22 @@ class SimulatorService:
             # Clean up temp file
             os.remove(temp_coords_file)
 
-            # Write Output for Controller
+            # Write Output for Controller          
             output_file = os.path.join(SIM_OUTPUT_DIR, f"sim_output_{timestamp}.json")
+            """   
             with open(output_file, 'w') as f:
                 json.dump({
                     "episode_key": episode_key,
                     "coordinates": coords,
                     "image_path": image_path
-                }, f)
+                }, f) """
+
+            # Replace with atomic write version
+            atomic_write_json(output_file, {
+                "episode_key": episode_key,
+                "coordinates": coords,
+                "image_path": image_path,
+            })
 
             print(f"Image generated: {image_path}")
             return True

@@ -6,3 +6,6 @@ NVIDIA-Linux-x86_64-*/
 miniconda3/
 data/
 checkpoint/
+online_eval/vla_eval/shared_folder/
+__pycache__/
+*.pyc

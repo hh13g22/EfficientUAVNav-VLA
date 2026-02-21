@@ -22,11 +22,9 @@
 - Insufficient VRAM
 
 ## Results
-| Model | Peak Mem (GB) | Mean Mem (GB) | Mean Inference Speed (ms) | SR (%) | NDTW (%)|
-|-------|:-------------:|:-------------:|:-------------------------:|:------:|:----:|
-|       |               |               |                           |        |      |
-|       |               |               |                           |        |      |
-|       |               |               |                           |        |      |
+| Model | Peak Mem (GB) | SR Full (%) | NDTW Full (%) | SR Easy (%) | NDTW Easy (%) | SR Med (%) | NDTW Med (%) | SR Hard (%) | NDTW Hard (%) |
+|-------|:-------------:|:-----------:|:-------------:|:-----------:|:-------------:|:----------:|:------------:|:-----------:|:-------------:|
+| IndoorUAV-Agent | 6.641 | 26.55 | 0.79 | 47.05 | 1.54 | 22.33 | 0.50 | 6.09 | 0.53 |
 
 ## Acknowledgments:
 Models:     [IndoorUAV-Agent](https://github.com/valyentinee/IndoorUAV-Agent/tree/main)

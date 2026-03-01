@@ -9,3 +9,4 @@ checkpoint/
 online_eval/vla_eval/shared_folder/
 __pycache__/
 *.pyc
+online_eval/vla_eval/shared_folder
